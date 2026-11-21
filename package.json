@@ -1,0 +1,59 @@
+{
+  "name": "ai-factory-explorer",
+  "private": true,
+  "version": "0.1.0",
+  "description": "An interactive explorer for AI factory topology: compute fabric, scalable units, racks, servers, and the paths between them.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "homepage": "https://github.com/improving/ai-factory-explorer",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/improving/ai-factory-explorer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/improving/ai-factory-explorer/issues"
+  },
+  "keywords": [
+    "ai-factory",
+    "gpu",
+    "nvidia",
+    "dgx",
+    "nvl72",
+    "infiniband",
+    "roce",
+    "topology",
+    "sre",
+    "visualization"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "citations:lock": "UPDATE_CITATIONS=1 vitest run tests/citations.test.ts",
+    "citations:relink": "node scripts/relink-citations.mjs"
+  },
+  "dependencies": {
+    "cytoscape": "3.34.3",
+    "marked": "18.1.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zustand": "5.0.15"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.19.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.8",
+    "vite-plugin-singlefile": "2.3.3",
+    "vitest": "5.1.0"
+  }
+}

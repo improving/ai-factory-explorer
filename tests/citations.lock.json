@@ -1,0 +1,640 @@
+{
+  "handbook/b300-nvl72-forum-triage-guide.md:12": [
+    "| 1 | NVLink/NVSwitch / Fabric Manager / IMEX / NVLSM failure | Very high on B300/GB200/NVL72 | `systemctl status nvidia-fabricmanager` + `journalctl -u nvidia-fabricmanager` (L3) |"
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:14": [
+    "| 3 | GPU ECC / Xid / thermal / power (incl. silent wrong results from cuBLASLt/cuDSS/nvCOMP) | High | `dmesg -T | grep -iE 'xid|aer'` → `nvidia-smi -q -d ECC,ROW_REMAPPER,PERFORMANCE` (L1/L2) |"
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:211": [
+    "  - `systemctl restart nvidia-fabricmanager` (kills all CUDA contexts on NVSwitch systems; drain first)."
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:240": [
+    "| **48** | Uncorrectable double-bit error (DBE) in GPU framebuffer memory. | Check `nvidia-smi -q -d ECC` for growing uncorrectable counters; if persistent, RMA candidate. |"
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:241-242": [
+    "| **63** | Row remapper marked a new row for remapping; a GPU reset is needed to activate it. | Run `nvidia-smi -q -d ROW_REMAPPER` after reset; repeated growth means failing memory. |",
+    "| **64** | Row remapper event (row remap state changed). | Same as Xid 63: monitor aggregate row remap count. |"
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:243-244": [
+    "| **94** | \"Contained ECC error\" — the driver caught and contained the error without killing the context. | Often follows an NVLink parity error (Xid 137). May *not* increment ECC counters. |",
+    "| **95** | \"Uncontained ECC error\" — more serious; context may be killed. | Treat like Xid 48/94 but more urgent; collect `nvidia-bug-report.sh`. |"
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:246": [
+    "| **137** | NVLink TLC RX PRIV error — transport-layer parity/privilege fault on an NVLink receiver. | Can cascade into Xid 94 across multiple GPUs; inspect `nvidia-smi nvlink -s` for error counters. |"
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:248": [
+    "| **74 / 149** | NVLink errors. | `nvidia-smi nvlink -s` / `nvidia-smi nvlink -e` to see which link is failing. |"
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:249": [
+    "| **79** | GPU \"fell off the bus\" — PCIe link/train error. | `lspci -tv`, `dmesg -T | grep -iE 'aer|pcie|nvrm'`, reseat or replace. |"
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:273": [
+    "| `cliqueId <id> state 3` | MNNVL clique is in a non-healthy state; check `nvidia-imex-ctl -H -N` and Fabric Manager logs. |"
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:284": [
+    "| `wait_fw_init: ... timeout` | Mellanox/BF firmware failed to finish initializing. Corrupt/incompatible firmware, power issue, or bad BFB. |"
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:285": [
+    "| `mlx5_load_one failed with error code -16` | Firmware init failed (`-EBUSY`); common after DPU/ConnectX firmware updates or bad power events. |"
+  ],
+  "handbook/b300-nvl72-forum-triage-guide.md:315": [
+    "   - Start with: `nvidia-imex-ctl -H -N`, `nvidia-smi -q | grep -A4 Fabric`, `ls -l /dev/nvidia-caps-imex-channels/channel*`."
+  ],
+  "handbook/cli_utilities_layered_gist.md:104": [
+    "| `ibnetdiscover` | Fabric topology: which port → which switch | Port-map validation; a cable moved |"
+  ],
+  "handbook/cli_utilities_layered_gist.md:12": [
+    "│ L8  Observability        Prometheus exporters, Alertmanager │"
+  ],
+  "handbook/cli_utilities_layered_gist.md:136": [
+    "| `nv show interface <swp> counters` | Per-port packet/error counters | Drops or errors on a storage port |"
+  ],
+  "handbook/cluster-onboarding.md:123": [
+    "  Pass: each PSU is present and redundant,"
+  ],
+  "handbook/cluster-onboarding.md:149": [
+    "  Pass: the PSUs, fans, and temperatures are in range;"
+  ],
+  "handbook/cluster-onboarding.md:161": [
+    "  Pass: each GPU and its NIC are under the same PCIe switch (`PIX` or `PXB`),"
+  ],
+  "handbook/cluster-onboarding.md:174-176": [
+    "- [ ] **The local disks are healthy.**",
+    "  Pass: no media errors;"
+  ],
+  "handbook/cluster-onboarding.md:350": [
+    "- [ ] **Each BMC is reachable** on the out-of-band network."
+  ],
+  "handbook/cluster-onboarding.md:526": [
+    "  Read the sensors and the system event log through Redfish or `racadm`."
+  ],
+  "handbook/command-reference.md:100": [
+    "| `mount -o vers=3,nconnect=<n>,spread_reads,spread_writes,remoteports=dns,localports=<ip range> <vip>:/<export> /mnt/vast` | A VAST mount with multipath; `nconnect` = 8 for each 100 Gb/s on TCP, 2 for each 100 Gb/s on RDMA (minimum 8) | A client with low throughput; the M8 lab | M8 |"
+  ],
+  "handbook/command-reference.md:101": [
+    "| `nfsstat -m` | The mount options in use on every NFS mount | The client does not use the multipath options | M8 |"
+  ],
+  "handbook/command-reference.md:103": [
+    "| `gdscheck -p` *(check the flags)* | The GPUDirect Storage support and configuration of the node | Acceptance of a node that uses GPUDirect Storage | M8 |"
+  ],
+  "handbook/command-reference.md:108": [
+    "| `vastpy-cli --json get clusters` | The cluster state from VMS | The first VAST command in an incident | M8 |"
+  ],
+  "handbook/command-reference.md:119": [
+    "| `kubectl get pods -n gpu-operator` *(namespace as installed)* | The GPU Operator components: driver, toolkit, device plugin, DCGM exporter | A pod is `Running` but has no GPU | M9 |"
+  ],
+  "handbook/command-reference.md:120": [
+    "| `kubectl logs -n gpu-operator <driver pod>` | The driver container log | The driver pod is in a crash loop after an upgrade | M9 |"
+  ],
+  "handbook/command-reference.md:156": [
+    "| `curl -s localhost:9400/metrics \\| grep DCGM_FI` *(port as installed)* | The metrics that `dcgm-exporter` gives | A metric is missing from the dashboard | M5 |"
+  ],
+  "handbook/command-reference.md:157": [
+    "| `curl -s localhost:9100/metrics` | The node exporter metrics | A host metric is missing | M5 |"
+  ],
+  "handbook/command-reference.md:158": [
+    "| `journalctl -u nvidia-fabricmanager`, `journalctl -k` | The Fabric Manager log; the kernel log through journald | A Fabric Manager alert; a Xid search | M2 |"
+  ],
+  "handbook/command-reference.md:167": [
+    "| `chronyc tracking`, `chronyc sources` | The time offset of the node, and its NTP sources | TLS or token errors; a node `NotReady` with no other cause (runbook N10) | M3 |"
+  ],
+  "handbook/command-reference.md:169": [
+    "| `ufm_ha_cluster status` *(check the flags)* | Which UFM unit is active, and the state of the pair | A UFM event; a subnet manager failover (runbook N7) | M3 |"
+  ],
+  "handbook/command-reference.md:170": [
+    "| `nv show qos roce` *(check the command on your Cumulus Linux version)* | The RoCE QoS state of a storage leaf switch | Slow storage over RDMA; PFC or ECN counter growth | M3 |"
+  ],
+  "handbook/command-reference.md:171": [
+    "| `kubectl get backups -n velero`, `kubectl describe backup -n velero <name>` | The Rafay Controller backups and their state | The daily health check (L17); before a controller upgrade | M10 |"
+  ],
+  "handbook/command-reference.md:181": [
+    "| `kubectl cordon <node>`, `kubectl drain <node> --ignore-daemonsets` | Stops new pods; moves the pods off | Check the ComputeDomain: on NVL72, one drain can stop a 72-GPU job | M10 |"
+  ],
+  "handbook/command-reference.md:183": [
+    "| `scontrol update NodeName=<node> State=DRAIN Reason=\"<ticket>\"` | Drains a Slurm node | Always with the ticket number as the reason | M10 |"
+  ],
+  "handbook/command-reference.md:193": [
+    "| `radm` *(on the controller nodes; check the subcommands for your release)* | Installs, upgrades, and restores a self-hosted Rafay Controller | L3 only, through the change procedure L7 or the restore runbook R8 | M9, M10 |"
+  ],
+  "handbook/command-reference.md:21": [
+    "2. `dmesg -T | grep -i xid` on every node of the job: a Xid event in the last hour?"
+  ],
+  "handbook/command-reference.md:24": [
+    "5. `iblinkinfo` and the subnet manager log for that node: a link flap in the last hour?"
+  ],
+  "handbook/command-reference.md:34": [
+    "| `nvidia-smi -q -d ECC,ROW_REMAPPER,PERFORMANCE` | ECC error counts, row remap state (pending, failed), throttle reasons | Xid 48, 63, 64, 94, 95; before an RMA decision | M2 |"
+  ],
+  "handbook/command-reference.md:35": [
+    "| `nvidia-smi topo -m` | The GPU-to-GPU and GPU-to-NIC path matrix (NV#, PIX, PXB, PHB, NODE, SYS) | NCCL selects a slow transport; a new node in acceptance | M1 |"
+  ],
+  "handbook/command-reference.md:36": [
+    "| `nvidia-smi nvlink -s` *(check the flags)* | NVLink state and error counters for each link | Xid 74, 149; DCGM NVLink counter growth | M2 |"
+  ],
+  "handbook/command-reference.md:37": [
+    "| `lspci -vv -s <bdf> \\| grep -E 'LnkCap\\|LnkSta'` *(check the flags)* | The maximum and the trained speed and width of one PCIe link | Acceptance of a new node; a GPU or NIC is slow with no error | M1 |"
+  ],
+  "handbook/command-reference.md:38": [
+    "| `lspci -tv` | The PCIe tree: which GPU, NIC, and NVMe hang off which switch | A GPU \"fell off the bus\" (Xid 79); PCIe AER events | M1 |"
+  ],
+  "handbook/command-reference.md:39": [
+    "| `nvidia-smi nvlink -e` *(check the flags)* | The NVLink error counters: CRC, replay, recovery | Acceptance, before and after the burn-in; Xid 74, 149 | M2 |"
+  ],
+  "handbook/command-reference.md:41": [
+    "| `lstopo` | NUMA nodes, cores, and the devices on each one | GPU-to-NIC affinity; dataloader CPU placement | M1 |"
+  ],
+  "handbook/command-reference.md:42": [
+    "| `ipmitool sensor` | BMC sensors: temperatures, fans, voltages, power | Thermal or power alarm; a node that does not boot | M1 |"
+  ],
+  "handbook/command-reference.md:43": [
+    "| `ipmitool sel list` *(check the flags)* | The BMC system event log | A node reboot with no kernel log; a hardware fault | M1 |"
+  ],
+  "handbook/command-reference.md:44": [
+    "| `dmesg -T` | The kernel log with timestamps: Xid, PCIe AER, NVMe, `amdgpu` messages | Every hardware alert; `grep -iE 'xid\\|aer\\|nvme'` | M2 |"
+  ],
+  "handbook/command-reference.md:45": [
+    "| `nvme list`, `nvme smart-log /dev/nvme0` | The local NVMe drives and their health (media errors, wear) | Local NVMe failure or a slow local cache | M8 |"
+  ],
+  "handbook/command-reference.md:52": [
+    "| `dcgmi diag -r 1` | Quick diagnostics, seconds | Between jobs (the epilog); a suspect node | M2 |"
+  ],
+  "handbook/command-reference.md:53": [
+    "| `dcgmi diag -r 3` | Long diagnostics, approximately 15 min; stresses the GPUs | After a repair; before a return to service. Drain the node first | M2 |"
+  ],
+  "handbook/command-reference.md:57": [
+    "| `nvidia-imex-ctl` *(check the flags)* | The state of the IMEX daemon and its connections on an NVL72 compute tray | A multi-node NVLink job cannot start; Fabric Manager or IMEX alert | M9 |"
+  ],
+  "handbook/command-reference.md:58": [
+    "| `systemctl status nvidia-fabricmanager` | Fabric Manager service state | CUDA initialization fails on an NVSwitch system | M2 |"
+  ],
+  "handbook/command-reference.md:72": [
+    "| `ibstat` | The local HCA ports: state, rate, LID | A node lost the fabric; a port is down | M3 |"
+  ],
+  "handbook/command-reference.md:73": [
+    "| `iblinkinfo` | Every link of the fabric with its speed and width | A link runs below its rate; a link flap | M3 |"
+  ],
+  "handbook/command-reference.md:74": [
+    "| `ibnetdiscover` | The fabric topology: which port connects to which switch | Port-map validation against the LLD; a cable moved | M3 |"
+  ],
+  "handbook/command-reference.md:75": [
+    "| `perfquery -x` | The extended port counters: symbol errors, link downed, receive errors, discards | A slow link; before you blame a cable | M3 |"
+  ],
+  "handbook/command-reference.md:76": [
+    "| `ibdiagnet` | A full fabric scan with an error report | The first command on a fabric-wide problem; weekly | M3 |"
+  ],
+  "handbook/command-reference.md:77": [
+    "| `mlxlink -d <device> -p <port>` *(check the flags)* | The physical link: speed, bit error rate, optical power and temperature | A cable or transceiver fault | M3 |"
+  ],
+  "handbook/command-reference.md:79": [
+    "| `lldpctl` on the host; `nv show interface <port> lldp` on Cumulus Linux *(check the flags)* | The LLDP neighbour of each Ethernet port | Cabling check against the port map on a RoCE fabric | M3 |"
+  ],
+  "handbook/command-reference.md:81": [
+    "| `ethtool -S <nic>` | NIC counters; on RoCE, the PFC pause and ECN counters | RoCE congestion; PFC storm; packet drops | M3 |"
+  ],
+  "handbook/concepts.md:13": [
+    "- [ ] The structure of the cluster: scalable units, racks, and the four networks (compute, storage, in-band management, out-of-band management)."
+  ],
+  "handbook/concepts.md:15": [
+    "- [ ] Liquid cooling basics: the CDU, the coolant loops, the supply and return temperature, the flow rate, and leak detection."
+  ],
+  "handbook/concepts.md:16": [
+    "- [ ] The blast radius of a facility fault: one PDU, one CDU, one row."
+  ],
+  "handbook/concepts.md:217": [
+    "- [ ] The machine-assisted diagnosis: the symptom chain, the diagnosis fields (`terminal_state`, `sub_domain`, failure class, responsible node), the `ambiguous` and `unattributed` states, and the recovery policy."
+  ],
+  "handbook/concepts.md:218": [
+    "- [ ] The failure taxonomy: exit 137 is SIGKILL, not a cause; the kubelet reason beats the exit code; recurrence is a finding."
+  ],
+  "handbook/hardware-matrix.md:17": [
+    "| GPU memory | H100: 80 GB. H200: 141 GB HBM3e. | B200 baseboard: 1.4 TB total for 8 GPUs. B300: 288 GB for each GPU, 2.3 TB for 8 GPUs (the value this training uses; see note 2). | GB200: 13.4 TB HBM3e total for 72 GPUs. GB300: ask supplier. | MI300X: 192 GB HBM3. MI350X, MI355X: 288 GB HBM3E. |"
+  ],
+  "handbook/hardware-matrix.md:19": [
+    "| Cooling | ask supplier | Dell B300 servers: air (XE9780, XE9785; 10U, 12 power supplies of 3200 W) or liquid (XE9780L, XE9785L; in the Dell IR7000 rack). Other suppliers: ask supplier. | Liquid-cooled rack. | MI350X: air. MI355X: direct liquid. |"
+  ],
+  "handbook/hardware-matrix.md:20": [
+    "| Scale-up link | NVLink, 900 GB/s for each GPU. | NVLink 5 with NVSwitch, 1.8 TB/s for each GPU; 14.4 TB/s on the baseboard. | NVLink with NVSwitch trays, 130 TB/s for the rack. | AMD Infinity Fabric, 7 links for each GPU. Bandwidth: see note 1. |"
+  ],
+  "handbook/hardware-matrix.md:21": [
+    "| Scale-out NIC | ask supplier | B300: 8 ConnectX-8 SuperNICs, one for each GPU, up to 800 Gb/s each. B200: ask supplier. | ask supplier | ask supplier |"
+  ],
+  "handbook/hardware-matrix.md:22": [
+    "| GPUs in one scale-up domain | 8 | 8 | 72, with 36 Grace CPUs | 8 |"
+  ],
+  "handbook/hardware-matrix.md:23": [
+    "| Failure domain of one scale-up fault | 1 server, 8 GPUs | 1 server, 8 GPUs | Up to 1 rack, 72 GPUs | 1 server, 8 GPUs |"
+  ],
+  "handbook/hardware-matrix.md:40": [
+    "| Services the scale-up domain needs | Fabric Manager | Fabric Manager; on B200 and B300 also the NVLink Subnet Manager (NVLSM), which the Fabric Manager package installs | Fabric Manager, NVLink Subnet Manager, IMEX across the compute trays | none found; ask supplier |"
+  ],
+  "handbook/hardware-matrix.md:55": [
+    "2. **NVL72 changes the failure domain from 8 to 72 GPUs.** A fault in an NVSwitch tray, in the NVLink Subnet Manager, or in IMEX can affect every job in the rack. Drain decisions and the scheduler topology must use the NVLink domain, not the node."
+  ],
+  "handbook/l1-primer.md:16": [
+    "L1 does not restart, drain, reboot, delete, or edit anything, unless a runbook step says that L1 may do it."
+  ],
+  "handbook/onsite-procedures.md:14": [
+    "The customer's facility team keeps the building: power, cooling, access, and the building management system (BMS)."
+  ],
+  "handbook/onsite-procedures.md:57": [
+    "2. Hot-swap or cold-swap: read it in the spec sheet of your model. On the air-cooled XE9780 and XE9785, the GPU fans are hot-swap and the CPU fans are cold-swap (the server must be off)."
+  ],
+  "handbook/onsite-procedures.md:65": [
+    "1. Find the port on both ends with the port map; confirm the link on the switch and on the node before you touch it."
+  ],
+  "handbook/runbook-catalog.md:116": [
+    "| N1 | Link flap or link down on a compute rail | subnet manager or switch log, `iblinkinfo`, link downed counter |"
+  ],
+  "handbook/runbook-catalog.md:116-117": [
+    "| N1 | Link flap or link down on a compute rail | subnet manager or switch log, `iblinkinfo`, link downed counter |",
+    "| N2 | High bit error rate, symbol errors, defective cable or transceiver | `perfquery -x`, `mlxlink`, optical power and temperature |"
+  ],
+  "handbook/runbook-catalog.md:117": [
+    "| N2 | High bit error rate, symbol errors, defective cable or transceiver | `perfquery -x`, `mlxlink`, optical power and temperature |"
+  ],
+  "handbook/runbook-catalog.md:120": [
+    "| N5 | GPUDirect RDMA not in use (traffic goes through host memory) | `NCCL_DEBUG` output, `nvidia-peermem` or DMA-BUF state, ACS and IOMMU settings |"
+  ],
+  "handbook/runbook-catalog.md:121": [
+    "| N6 | RoCE congestion: PFC storm, ECN marks, packet drops | PFC pause counters, ECN counters, switch buffer telemetry |"
+  ],
+  "handbook/runbook-catalog.md:122": [
+    "| N7 | Subnet manager failover or routing problem (InfiniBand) | UFM events, the UFM HA state (which unit is active), subnet manager log, routing state |"
+  ],
+  "handbook/runbook-catalog.md:124": [
+    "| N9 | Switch failure or switch upgrade: blast radius and drain plan | topology map, the affected nodes list |"
+  ],
+  "handbook/runbook-catalog.md:125": [
+    "| N10 | Time sync (NTP) or DNS fault on cluster nodes | `chronyc tracking` offset, TLS or token errors, a node `NotReady` with no other cause, name resolution errors; the handoff to the enterprise network team |"
+  ],
+  "handbook/runbook-catalog.md:126": [
+    "| N11 | A network automation change fails, or a switch configuration drifts from the intent | the automation controller event log, the switch agent state, the switch configuration against the intent; the switches keep the last configuration when the controller is down |"
+  ],
+  "handbook/runbook-catalog.md:136": [
+    "| S5 | Local NVMe failure or wear | SMART data, `nvme-cli`, kernel log |"
+  ],
+  "handbook/runbook-catalog.md:144": [
+    "| P1 | Pod or job cannot get GPUs (device plugin, DRA, or GRES problem) | allocatable resources, plugin logs, `slurmd` log |"
+  ],
+  "handbook/runbook-catalog.md:145": [
+    "| P2 | GPU Operator or Network Operator component in a crash loop | pod state, driver container log, kernel version change |"
+  ],
+  "handbook/runbook-catalog.md:147": [
+    "| P4 | Node is `NotReady`, or `slurmd` does not respond | kubelet or `slurmd` log, node pressure, the management network |"
+  ],
+  "handbook/runbook-catalog.md:149": [
+    "| P6 | Control plane overload at scale (API server, etcd, or `slurmctld`) | request latency, etcd size, the number of objects |"
+  ],
+  "handbook/runbook-catalog.md:150": [
+    "| P7 | Control-plane VIP or load balancer fault: the API server or the Rafay Controller is not reachable, but the nodes run | which node has the VIP, the load balancer health check (for the Rafay Controller: `/healthz/ready`), the TLS offload path against the TLS passthrough path, DNS |"
+  ],
+  "handbook/runbook-catalog.md:161": [
+    "| R1 | Cluster shows \"not reachable\" in Rafay: the Management Operator cannot connect to the Rafay Controller | the cluster health signals (reachability, control plane health), the operator pods in the cluster, firewall, MTU, and proxy on the path to the controller |"
+  ],
+  "handbook/runbook-catalog.md:164": [
+    "| R4 | A user cannot get `kubectl` access through Zero Trust Kubectl Access (ZTKA) | the role and project of the user, SSO state, the ZTKA connection, the `kubectl` audit log |"
+  ],
+  "handbook/runbook-catalog.md:167": [
+    "| R7 | Self-hosted Rafay Controller is degraded (only if you operate the controller yourself) | the controller pods (`kubectl get pods -A` on the controller cluster), TLS certificates, the controller Grafana, the time-series database when dashboards do not load, the `relay-agent` pod for ZTKA faults, the `rcollect` support logs |"
+  ],
+  "handbook/runbook-catalog.md:168": [
+    "| R8 | Restore the self-hosted Rafay Controller from backup (the controller is lost) | the last completed Velero backup, the S3-compatible store, the restore settings of the controller configuration, the DNS cutover, the clusters that connect again |"
+  ],
+  "handbook/runbook-catalog.md:176": [
+    "| V1 | Low throughput from one client or one tenant | the mount options (`nconnect`, multipath, RDMA or TCP), the VAST NFS driver version, which VIPs and CNodes the client uses, a QoS policy that limits the view or the user, the `vperfcheck` baseline |"
+  ],
+  "handbook/runbook-catalog.md:177": [
+    "| V2 | Client I/O stops or is slow after a CNode failure or a CNode maintenance | VIP movement between CNodes, the VIP pool membership, stale mounts on the clients, the NFS timeout options |"
+  ],
+  "handbook/runbook-catalog.md:179": [
+    "| V4 | PersistentVolumeClaim stays in `Pending`, or a pod cannot mount (VAST CSI driver) | the CSI controller and node pods, the StorageClass (secret, storage path, VIP pool or `vipPoolFQDN`), the view and the quota in VMS |"
+  ],
+  "handbook/runbook-catalog.md:181": [
+    "| V6 | VMS is not available, or must move to a different CNode | the VMS VIP, `vms list` and `vms modify --preferred-cnode-ids`, the \"VMS Preferred\" VIP pool method |"
+  ],
+  "handbook/runbook-catalog.md:197": [
+    "| F1 | CDU or coolant loop alarm | coolant flow, supply and return temperature, leak detection |"
+  ],
+  "handbook/runbook-catalog.md:198": [
+    "| F2 | Rack power event (PDU or power shelf) | BMC power telemetry, the facility alert |"
+  ],
+  "handbook/runbook-catalog.md:199": [
+    "| F3 | Emergency thermal shutdown of a rack or a row: the drain sequence and the customer message | facility telemetry, the affected jobs list |"
+  ],
+  "handbook/runbook-catalog.md:213": [
+    "| L9 | Physical check of a node or a rack: find it, read the indicators, compare with iDRAC ([onsite-procedures.md](onsite-procedures.md)) |"
+  ],
+  "handbook/runbook-catalog.md:215": [
+    "| L11 | Optic and cable work: find both ends, clean and inspect, then the link counters and the port map |"
+  ],
+  "handbook/runbook-catalog.md:218": [
+    "| L14 | As-built update after a physical change: port map, rack layout, CMDB |"
+  ],
+  "handbook/runbook-catalog.md:65": [
+    "| [RB-01](../runbooks/RB-01-nvlink-fabric-fm-imex.md) | G3, G7 | NVLink and NVSwitch Xids (74, 149, 137); Fabric Manager, NVLSM, and IMEX health, also through the ComputeDomain on Kubernetes |"
+  ],
+  "handbook/runbook-catalog.md:66": [
+    "| [RB-02](../runbooks/RB-02-nccl-init-hang-slow-transport.md) | N3, N4, N5 | NCCL init hang, timeout, wrong or slow transport, mid-run hang; the GPUDirect RDMA, peermem, IOMMU, and ACS checks of N5 |"
+  ],
+  "handbook/runbook-catalog.md:67": [
+    "| [RB-03](../runbooks/RB-03-gpu-ecc-xid-thermal-power-silent-wrong.md) | G1, G2, G5, G6, G8 | ECC, Xid, row remap, thermal, power, and silent wrong results; the proof that an application-caused Xid follows the job |"
+  ],
+  "handbook/runbook-catalog.md:68": [
+    "| [RB-04](../runbooks/RB-04-ib-roce-link-switch-ufm.md) | N1, N2, N6, N7, N9 | Link flap, bit errors, cable and transceiver, RoCE congestion, UFM and subnet manager failover, the switch drain plan; the hand-off to the onsite procedures L11 and L14 |"
+  ],
+  "handbook/runbook-catalog.md:69": [
+    "| [RB-05](../runbooks/RB-05-firmware-driver-bmc-bios-dkms-doca.md) | G4, G9, G10 | Driver, DKMS, DOCA-OFED, and firmware regressions and version alignment; the GSP Xids; the BMC and BIOS path; GDS P2PDMA |"
+  ],
+  "handbook/runbook-catalog.md:70": [
+    "| [RB-06](../runbooks/RB-06-bluefield-dpu-boot-mlx5-eswitch.md) | none yet | BlueField DPU boot, mlx5 firmware initialization, eSwitch, OVS, and HBN data path; a candidate new row (DPU data path) |"
+  ],
+  "handbook/runbook-catalog.md:71": [
+    "| [RB-07](../runbooks/RB-07-storage-checkpoint-slow-stuck.md) | S1, S2, S4, S5, V1, V2, V4 | Checkpoint slow or stuck, dataloader stall, local NVMe, the VAST client, CNode, VMS, and CSI paths |"
+  ],
+  "handbook/runbook-catalog.md:72": [
+    "| [RB-08](../runbooks/RB-08-platform-scheduling-slurm-k8s-bcm-power.md) | P1, P2, P4, P7, R1, R2, N10; the PSU and DPS policy part of F2 | Slurm and Kubernetes scheduling, Rafay reachability and blueprints, time sync, BCM queues, DPS power policy; owns the shared drain and return-to-service procedure (L1) |"
+  ],
+  "handbook/runbook-catalog.md:73": [
+    "| [RB-09](../runbooks/RB-09-cuda-toolchain-dcgm-false-positive.md) | none | Stop and confirm: CUDA toolchain errors and DCGM health warnings that look like a hardware fault |"
+  ],
+  "handbook/runbook-catalog.md:74": [
+    "| [RB-10](../runbooks/RB-10-facility-cooling-power-emergency.md) | F1, F3; the PDU and power shelf part of F2 | CDU and coolant loop alarms, rack power events, and the drain sequence before an emergency thermal shutdown |"
+  ],
+  "handbook/runbook-catalog.md:75": [
+    "| [RB-11](../runbooks/RB-11-job-pending-queue-gang-topology.md) | P3 | A pending job: the queue quota and limit, the gang, the topology level, and the node eligibility; KAI Scheduler and NVIDIA Run:ai, with the Slurm equivalent |"
+  ],
+  "handbook/runbook-catalog.md:76": [
+    "| [RB-12](../runbooks/RB-12-host-not-allocatable-lifecycle.md) | P9, P10 | A host that cannot be allocated: the lifecycle state, the health classification, the SKU, the firmware baseline, and the network cleanup gate |"
+  ],
+  "handbook/runbook-catalog.md:82": [
+    "| G1 | GPU fell off the bus (Xid 79) | kernel log, `nvidia-smi` cannot find the GPU, PCIe AER events |"
+  ],
+  "handbook/runbook-catalog.md:83": [
+    "| G2 | GPU memory errors: double-bit ECC (Xid 48), row remap event and failure (Xid 63, 64), contained and uncontained errors (Xid 94, 95), unrecovered ECC (Xid 140) | DCGM ECC fields, `nvidia-smi -q -d ROW_REMAPPER` |"
+  ],
+  "handbook/runbook-catalog.md:84": [
+    "| G3 | NVLink error or NVSwitch fault (Xid 74, 149) | DCGM NVLink counters, `nvidia-smi nvlink`, Fabric Manager log |"
+  ],
+  "handbook/runbook-catalog.md:87": [
+    "| G6 | Thermal or power throttle | DCGM clock throttle reasons, inlet and coolant temperature, CDU telemetry |"
+  ],
+  "handbook/runbook-catalog.md:88": [
+    "| G7 | Fabric Manager, NVLink Subnet Manager (NVLSM, on HGX B200 and B300), or IMEX service failure (on Kubernetes: the ComputeDomain DaemonSet and the IMEX daemon of the node) | service state, NVLink domain state, CUDA initialization errors, the ComputeDomain node label, a pod stuck in `ContainerCreating` |"
+  ],
+  "handbook/runbook-catalog.md:89": [
+    "| G8 | Slow GPU with no error (suspected silent defect or silent data corruption) | per-rank step time, DCGM diagnostics level 4, a compare run on a known-good node |"
+  ],
+  "handbook/runbook-catalog.md:90": [
+    "| G9 | Node does not boot, or BMC is not reachable | Redfish or IPMI event log, the provisioning tool log |"
+  ],
+  "handbook/runbook-catalog.md:91": [
+    "| G10 | Driver, CUDA, or firmware mismatch after an upgrade | version inventory, GPU Operator pod state |"
+  ],
+  "handbook/security-operations.md:27": [
+    "2. **A separate privileged account.** Use the privileged account only for the task that needs it, through the customer's PAM and MFA."
+  ],
+  "handbook/security-operations.md:29": [
+    "4. **The approved path only.** All support access goes through the connectivity that the customer approves. No direct Internet exposure of a tool, and no remote-access tool of your own."
+  ],
+  "handbook/security-operations.md:37": [
+    "2. The break-glass accounts: a minimum of two, kept offline, with no dependency on the system that failed."
+  ],
+  "handbook/shift-discipline.md:30": [
+    "| P1 Critical | Material cluster outage; control-plane failure; major fabric event; large loss of GPU capacity; critical security event | ≤ 10 min | ≤ 15 min | each 30 min | ≤ 4 h |"
+  ],
+  "handbook/shift-discipline.md:31": [
+    "| P2 High | Significant degraded capacity or redundancy; many nodes or racks; material platform degradation | ≤ 15 min | ≤ 30 min | each hour | ≤ 8 h |"
+  ],
+  "handbook/shift-discipline.md:32": [
+    "| P3 Medium | Limited impact; one node or component with a capacity workaround; non-critical service degradation | ≤ 30 min | ≤ 2 h | as agreed | ≤ 2 business days |"
+  ],
+  "handbook/shift-discipline.md:47": [
+    "The customer's ticket tool has no integration with the monitoring at this stage: you open the ticket by hand."
+  ],
+  "handbook/shift-discipline.md:48": [
+    "One incident has one ticket. Link the alerts to it; do not open one ticket for each alert."
+  ],
+  "handbook/shift-discipline.md:69": [
+    "| Any | The facility team | Power, cooling, leak, access, a work permit (procedure L13) |"
+  ],
+  "handbook/shift-discipline.md:70": [
+    "| Any | The enterprise network team | DNS, NTP, IPAM, the firewall, upstream routing (runbook N10) |"
+  ],
+  "handson/03-troubleshooting/README.md:39": [
+    "## Drill 2 — the device plugin reports 0 GPUs"
+  ],
+  "handson/13-ibsim-real-fabric/ARCHITECTURE.md:59": [
+    "1. **Discovers** the physical topology by walking the fabric with SMPs (Subnet Management Packets)."
+  ],
+  "handson/13-ibsim-real-fabric/ARCHITECTURE.md:63": [
+    "3. **Computes routes**: fills in every switch's linear forwarding table,"
+  ],
+  "handson/13-ibsim-real-fabric/lab06/README.md:10": [
+    "- InfiniBand's LID-based unicast forwarding has **no ECMP**:"
+  ],
+  "handson/13-ibsim-real-fabric/lab16/README.md:12": [
+    "- Why losing one spine (in a fabric with 2 or more) degrades bandwidth but does **not** partition anything,"
+  ],
+  "handson/13-ibsim-real-fabric/lab17/README.md:78": [
+    "   An SM outage does not corrupt existing tables, but it does freeze them exactly where they were."
+  ],
+  "handson/README.md:69": [
+    "driver 570) with the 8-GPU HGX layout of `b200` (2 NUMA nodes, one HCA per GPU)."
+  ],
+  "handson/SimAI_SimCCL_55_B300_Reference_Architecture_Labs.md:655": [
+    "## LAB 05 — B300 8-GPU AllReduce message sweep"
+  ],
+  "handson/SimAI_SimCCL_55_B300_Reference_Architecture_Labs.md:696": [
+    "## LAB 06 — AllGather on B300 8-GPU node"
+  ],
+  "handson/SimAI_SimCCL_55_B300_Reference_Architecture_Labs.md:713": [
+    "## LAB 07 — ReduceScatter on B300 8-GPU node"
+  ],
+  "handson/profiles/b300.yaml:283": [
+    "  links_per_gpu: 18"
+  ],
+  "handson/profiles/b300.yaml:284": [
+    "  bandwidth_per_link_mbps: 53125"
+  ],
+  "handson/profiles/b300.yaml:305-319": [
+    "  root_complexes:",
+    "    - 0000:CB:00.0"
+  ],
+  "runbooks/RB-01-nvlink-fabric-fm-imex.md:150": [
+    "| A5 | NCCL workaround: disable NVLS `[E]` (same row family as RB-02 A3, which owns NCCL env workarounds) | `NCCL_NVLS_ENABLE=0 <app>` | **L2.** The job owner agrees. Evidence captured; `transport/nvls.cc` failure confirmed | Job loses in-switch reduction (slower collectives). Not a root-cause fix | Unset the variable |"
+  ],
+  "runbooks/RB-01-nvlink-fabric-fm-imex.md:18": [
+    "# RB-01 — NVLink / NVSwitch / Fabric Manager / IMEX / NVLSM failure"
+  ],
+  "runbooks/RB-01-nvlink-fabric-fm-imex.md:49": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-01-nvlink-fabric-fm-imex.md:51": [
+    "1. `systemctl status nvidia-fabricmanager` `[C:L3]` — expected: `active (running)`."
+  ],
+  "runbooks/RB-01-nvlink-fabric-fm-imex.md:52": [
+    "2. `journalctl -u nvidia-fabricmanager` `[C:L3]` — expected: clean start, no `Detected Pre-NVL5 system`, no device query errors."
+  ],
+  "runbooks/RB-01-nvlink-fabric-fm-imex.md:53": [
+    "3. `nvidia-imex-ctl -H -N` `[C:§11.5]` — expected: all domain nodes `READY`, matrix `C`."
+  ],
+  "runbooks/RB-02-nccl-init-hang-slow-transport.md:18": [
+    "# RB-02 — NCCL init hang, slow collective, wrong transport, mid-run hang"
+  ],
+  "runbooks/RB-02-nccl-init-hang-slow-transport.md:223": [
+    "| A1 | Pin the NCCL socket interface `[E]` | `NCCL_SOCKET_IFNAME=<if>` | **L2.** The job owner agrees. `ip -br link \\| grep LOWER_UP` | One job; bootstrap uses that interface | Unset |"
+  ],
+  "runbooks/RB-02-nccl-init-hang-slow-transport.md:67": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-02-nccl-init-hang-slow-transport.md:69": [
+    "1. Read the log that the job already wrote (per-rank NCCL log, Slurm output file, or `kubectl logs <pod>` `[R]`) — expected: no `NCCL WARN` line; the intended interface; IB, not `Using network Socket`. Note the last line before the error or the hang."
+  ],
+  "runbooks/RB-02-nccl-init-hang-slow-transport.md:70": [
+    "2. `dmesg -T | grep -i xid` on every job node `[C:§9]` (or `journalctl -k` `[C:L8]`) — expected: no Xid in the last hour."
+  ],
+  "runbooks/RB-02-nccl-init-hang-slow-transport.md:71": [
+    "3. `ibstat` `[C:L4]` — expected: `Active`, `LinkUp`, expected rate and link layer."
+  ],
+  "runbooks/RB-03-gpu-ecc-xid-thermal-power-silent-wrong.md:145": [
+    "| A3 | Cap GPU power for thermal mitigation `[C:§10]` | `nvidia-smi -pl <watts> -i <gpu>` | **L2.** The job owner agrees (the cap slows the job). `nvidia-smi -q` shows thermal/power throttle and `ipmitool sensor` confirms a cooling or power cause | Lower performance on that GPU | Remove the cap (set back to the default limit); **record the change and remove after the cooling fix** |"
+  ],
+  "runbooks/RB-03-gpu-ecc-xid-thermal-power-silent-wrong.md:176": [
+    "- RMA candidate when: Xid 48/95/140/171 repeat or uncorrectable counters keep growing; row remap fails or keeps growing; Xid 79 repeats on the same GPU after reseat."
+  ],
+  "runbooks/RB-03-gpu-ecc-xid-thermal-power-silent-wrong.md:18": [
+    "# RB-03 — GPU ECC / Xid / thermal / power / row remap, including silent wrong results"
+  ],
+  "runbooks/RB-03-gpu-ecc-xid-thermal-power-silent-wrong.md:50": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-03-gpu-ecc-xid-thermal-power-silent-wrong.md:52": [
+    "1. `dmesg -T | grep -iE 'xid|aer|nvme|pcie|dpc'` `[C:L1]` — expected: no Xid/AER in the last hour; otherwise note the Xid number and the GPU/PCI address."
+  ],
+  "runbooks/RB-03-gpu-ecc-xid-thermal-power-silent-wrong.md:53": [
+    "2. `nvidia-smi -q -d ECC,ROW_REMAPPER,PERFORMANCE` `[C:L2]` — expected: uncorrectable counters 0, no pending/failed row remap, no unexpected throttle."
+  ],
+  "runbooks/RB-03-gpu-ecc-xid-thermal-power-silent-wrong.md:54": [
+    "3. `dcgmi health -c` `[C:L2]` — expected: `Healthy` for every GPU."
+  ],
+  "runbooks/RB-04-ib-roce-link-switch-ufm.md:170": [
+    "| A9 | Drain the affected node (RB-08 shared procedure) `[C:§10]` | `kubectl drain --ignore-daemonsets` or `scontrol update ... State=DRAIN Reason=\"<ticket>\"` | **L2.** ComputeDomain check on NVL72 | Evicts jobs | Uncordon/RESUME after RB-08 return tests |"
+  ],
+  "runbooks/RB-04-ib-roce-link-switch-ufm.md:18": [
+    "# RB-04 — InfiniBand / RoCE link down, slow or flaky; switch, UFM and Cumulus issues"
+  ],
+  "runbooks/RB-04-ib-roce-link-switch-ufm.md:51": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-04-ib-roce-link-switch-ufm.md:53": [
+    "1. `ibstat` `[C:L4]` — expected: `Active`, `LinkUp`, expected rate and link layer."
+  ],
+  "runbooks/RB-04-ib-roce-link-switch-ufm.md:54": [
+    "2. `iblinkinfo` `[C:L4]` — expected: every link at the expected speed/width."
+  ],
+  "runbooks/RB-04-ib-roce-link-switch-ufm.md:55": [
+    "3. `perfquery -x <lid>` `[C:§11.4]` — expected: `SymbolErrorCounter`, `LinkErrorRecoveryCounter`, `LinkDownedCounter` flat."
+  ],
+  "runbooks/RB-05-firmware-driver-bmc-bios-dkms-doca.md:18": [
+    "# RB-05 — Firmware / driver / BMC / BIOS / DKMS / DOCA-OFED regression"
+  ],
+  "runbooks/RB-05-firmware-driver-bmc-bios-dkms-doca.md:44": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-06-bluefield-dpu-boot-mlx5-eswitch.md:18": [
+    "# RB-06 — BlueField / DPU boot, mlx5 firmware-init failures, eSwitch / OVS / HBN datapath"
+  ],
+  "runbooks/RB-06-bluefield-dpu-boot-mlx5-eswitch.md:44": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-07-storage-checkpoint-slow-stuck.md:18": [
+    "# RB-07 — Storage / checkpoint slow or stuck (L5)"
+  ],
+  "runbooks/RB-07-storage-checkpoint-slow-stuck.md:39": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-08-platform-scheduling-slurm-k8s-bcm-power.md:18": [
+    "# RB-08 — Platform / scheduling: Slurm, Kubernetes (Rafay), BCM, PSU / DPS power-policy errors"
+  ],
+  "runbooks/RB-08-platform-scheduling-slurm-k8s-bcm-power.md:47": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-09-cuda-toolchain-dcgm-false-positive.md:18": [
+    "# RB-09 — CUDA toolchain errors and DCGM health false-positives"
+  ],
+  "runbooks/RB-09-cuda-toolchain-dcgm-false-positive.md:20": [
+    "**Purpose: a stop-and-confirm runbook.** These signatures sound like hardware or fabric faults but are usually not. Prove it in two commands, then close or hand off."
+  ],
+  "runbooks/RB-09-cuda-toolchain-dcgm-false-positive.md:38": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-10-facility-cooling-power-emergency.md:17": [
+    "# RB-10 — Facility emergency: CDU or coolant loop alarm, rack power event, the drain before an emergency thermal shutdown"
+  ],
+  "runbooks/RB-10-facility-cooling-power-emergency.md:40": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-11-job-pending-queue-gang-topology.md:18": [
+    "# RB-11 — Job pending: queue quota, gang, topology, or node eligibility"
+  ],
+  "runbooks/RB-11-job-pending-queue-gang-topology.md:44": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-11-job-pending-queue-gang-topology.md:48": [
+    "1. `kubectl get pod <pod> -o wide` and `kubectl describe pod <pod> | tail -20` `[C:L7]` — expected: the pod is `Pending`, and the last event names a reason. No event means the pod is not scheduled by KAI (signature 105)."
+  ],
+  "runbooks/RB-11-job-pending-queue-gang-topology.md:49": [
+    "2. `kubectl get podgroups -o wide` and `kubectl describe podgroup <name>` `[C:L7]` — expected: `minMember` and a condition. Compare `minMember` with the largest free gang on one node or in one domain."
+  ],
+  "runbooks/RB-11-job-pending-queue-gang-topology.md:50": [
+    "3. `kubectl get queue <queue-name> -o yaml` `[C:L7]` — expected: `quota`, `limit`, `overQuotaWeight`, `priority`. Read `status` for the allocated value."
+  ],
+  "runbooks/RB-11-job-pending-queue-gang-topology.md:84": [
+    "| A3 | Reduce `kai.scheduler/batch-min-member`, or the parallelism | **L2.** Job owner decides; a smaller gang changes the job's shape | The job starts sooner with fewer workers | Re-submit with the original value |"
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:104": [
+    "- [ ] The firmware matches the site baseline, or the difference is an approved exception."
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:18": [
+    "# RB-12 — Host not allocatable: lifecycle state, health classification, SKU, or firmware baseline"
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:28": [
+    "| 106 | Instance creation fails; the machine health carries `PreventAllocations` | The host is blocked by a health classification. The power state and the network are not the cause. |"
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:29": [
+    "| 107 | The machine state is `Quarantined` or `Failed`, or the firmware differs from the site baseline | A Day 0 or Day 2 gate failed. The host is held until the baseline is met. |"
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:31": [
+    "| 109 | SKU validation fails: a missing or an unexpected component | The machine does not match its bill of materials. |"
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:44": [
+    "## 3. First 5 minutes"
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:46": [
+    "1. `nicocli machine get <machine-id> -o json > machine.json` `[C:L7]` — expected: `state`, `health`, `skuValidation`, and the firmware inventory in one record."
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:47": [
+    "2. `jq '{state, health}' machine.json` `[C:L7]` — expected: the classification. `PreventAllocations` explains the failed instance request."
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:48": [
+    "3. `jq '.health.alerts[] | {id, target, classification}' machine.json` `[C:L7]` — expected: the probe id and the target, for example a sensor or a DPU agent check."
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:70": [
+    "| 4 | `PreventAllocations` from `TrayLeak` or `RackLeak` | A leak | Stop. Follow [RB-10](RB-10-facility-cooling-power-emergency.md). Do not clear the classification. |"
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:72": [
+    "| 6 | The state is `Quarantined`, and the firmware differs from the baseline | The Day 0 or Day 2 baseline gate failed | Run the firmware update through Flow on the unoccupied host. Mitigation A2 |"
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:81": [
+    "| A1 | Clear a health override, or set the host to maintenance while you work | **L2.** The owner of the host agrees; a cleared override returns the host to allocation | The host may receive a tenant before the repair is done | Re-apply the override |"
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:82": [
+    "| A2 | Update the firmware to the site baseline through a Flow operation run | **L4.** The host is unoccupied; the operation rule and the phase plan are approved; a rollback image exists | The host reboots out of band; no tenant is affected | Re-run the previous baseline |"
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:85": [
+    "| A5 | Release the instance for a full repair, and let a repair tenant claim the machine | **L2.** The tenant agrees; the online repair is cleared first | The tenant loses the instance; the machine is cleaned and quarantined | Re-provision the instance |"
+  ],
+  "runbooks/RB-12-host-not-allocatable-lifecycle.md:90": [
+    "2. **Use the repair workflow, not a manual state change.** Online repair keeps the instance; full repair releases it; the repair tenant claims the machine with a targeted instance."
+  ]
+}
