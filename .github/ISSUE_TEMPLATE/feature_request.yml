@@ -1,0 +1,42 @@
+name: Feature request
+description: Suggest a platform, a view, a path, or a fact.
+title: '[feature] '
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The explorer shows only sourced facts. A new design or value needs a public source
+        (a vendor reference architecture, a data sheet, or a manual); say which one.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The question that the explorer cannot answer
+      description: Describe the topology or operations question, not only the UI change.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+      description: The platform, the view, the path, or the fact; and where it fits.
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Public source
+      description: A URL that confirms the values, or the document that the fact comes from.
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Other views or workarounds that you considered.
+    validations:
+      required: false

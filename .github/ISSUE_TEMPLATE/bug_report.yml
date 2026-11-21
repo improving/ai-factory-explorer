@@ -1,0 +1,60 @@
+name: Bug report
+description: Something in the explorer is wrong, broken, or misleading.
+title: '[bug] '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. A link that reproduces the problem is the fastest way to a fix:
+        the explorer keeps its whole state in the URL hash.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The view, the part, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the URL hash, for example `#su=4&server=su3-n07`.
+      placeholder: |
+        1. Open the app
+        2. Select ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: The release tag, the commit SHA, or the image tag.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Chromium
+        - Chrome
+        - Firefox
+        - Safari
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output or screenshots
+      description: Paste any console errors, or attach screenshots.
+      render: shell
+    validations:
+      required: false
