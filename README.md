@@ -129,10 +129,10 @@ docker run --rm -p 8080:8080 ai-factory-explorer
 # open http://localhost:8080
 ```
 
-The CI workflow publishes `ghcr.io/<owner>/ai-factory-explorer` on each push to `main`:
+The image workflow publishes `ghcr.io/<owner>/ai-factory-explorer-oss` on each push to `main`:
 
 ```bash
-docker run --rm -p 8080:8080 ghcr.io/improving/ai-factory-explorer:main
+docker run --rm -p 8080:8080 ghcr.io/improving/ai-factory-explorer-oss:main
 ```
 
 ## Data and provenance

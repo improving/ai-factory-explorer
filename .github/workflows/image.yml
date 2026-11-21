@@ -1,4 +1,4 @@
-# Publishes ghcr.io/<owner>/ai-factory-explorer on every push to main:
+# Publishes ghcr.io/<owner>/ai-factory-explorer-oss on every push to main:
 # :main plus the seven-character commit SHA. Pull requests build without
 # pushing, and a manual run pushes only from main.
 #
@@ -26,7 +26,8 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/ai-factory-explorer
+  # The private training repository already owns ghcr.io/<owner>/ai-factory-explorer.
+  IMAGE_NAME: ${{ github.repository_owner }}/ai-factory-explorer-oss
   PUSH: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
 
 jobs:
