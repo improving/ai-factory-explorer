@@ -57,23 +57,34 @@ jobs:
     needs: test
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: ai-factory-explorer
           path: dist
 
-      - name: Attach the built file to the release
+      # The organization does not allow a public container package, so the image travels as a release
+      # asset. A reader loads it with `gunzip -c … | docker load` and needs no registry account.
+      - name: Build the image
+        run: docker build --platform linux/amd64 -t "ai-factory-explorer:${GITHUB_REF_NAME}" .
+
+      - name: Save the image
+        run: docker save "ai-factory-explorer:${GITHUB_REF_NAME}" | gzip -9 > "ai-factory-explorer-${GITHUB_REF_NAME}-image.tar.gz"
+
+      - name: Attach the built file and the image to the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           file="ai-factory-explorer-${GITHUB_REF_NAME}.html"
+          image="ai-factory-explorer-${GITHUB_REF_NAME}-image.tar.gz"
           cp dist/index.html "$file"
           gh release create "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" \
             --title "AI Factory Explorer ${GITHUB_REF_NAME}" \
-            --notes "The AI Factory Explorer as one HTML file, for offline use. Built from ${GITHUB_REF_NAME}." \
-            "$file" ||
-          gh release upload "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" "$file" --clobber
+            --notes "The AI Factory Explorer as one HTML file, for offline use, and the container image as a tarball. Built from ${GITHUB_REF_NAME}." \
+            "$file" "$image" ||
+          gh release upload "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" "$file" "$image" --clobber

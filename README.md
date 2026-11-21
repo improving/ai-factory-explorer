@@ -123,17 +123,27 @@ npm run build
 
 ## Run it in a container
 
+Build the image:
+
 ```bash
 docker build -t ai-factory-explorer .
 docker run --rm -p 8080:8080 ai-factory-explorer
 # open http://localhost:8080
 ```
 
-The image workflow publishes `ghcr.io/<owner>/ai-factory-explorer-oss` on each push to `main`:
+Each release also attaches the image as a tarball, so you can run it without a build:
 
 ```bash
-docker run --rm -p 8080:8080 ghcr.io/improving/ai-factory-explorer-oss:main
+tag=v0.1.1
+curl -L -o ai-factory-explorer-image.tar.gz \
+  "https://github.com/improving/ai-factory-explorer/releases/download/${tag}/ai-factory-explorer-${tag}-image.tar.gz"
+gunzip -c ai-factory-explorer-image.tar.gz | docker load
+docker run --rm -p 8080:8080 "ai-factory-explorer:${tag}"
 ```
+
+The image workflow also publishes `ghcr.io/improving/ai-factory-explorer-oss` on each push to `main`.
+That package is private, because the Improving organization does not allow public packages;
+an organization member can pull it after `docker login ghcr.io`.
 
 ## Data and provenance
 

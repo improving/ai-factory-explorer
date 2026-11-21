@@ -1,7 +1,7 @@
 {
   "name": "ai-factory-explorer",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An interactive explorer for AI factory topology: compute fabric, scalable units, racks, servers, and the paths between them.",
   "license": "Apache-2.0",
   "type": "module",
