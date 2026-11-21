@@ -1,0 +1,46 @@
+# Example of a full custom config, illustrating the three sections that make up
+# a Mokka profile: system-level identity, device_defaults (applied to every
+# device), and devices[] (per-device overrides that win over device_defaults).
+#
+# This is a reference/teaching artifact — it mirrors the shape documented at
+# https://nvidia.github.io/k8s-test-infra/configuration/, it is not applied
+# directly by any command in this module (the chart renders its own config.yaml
+# from gpu.profile + --set overrides). Use it to understand precedence, or as a
+# starting point for MOCK_NVML_CONFIG if you build/run the library outside k8s.
+
+version: "1.0"
+
+system:
+  driver_version: "550.163.01"
+  nvml_version: "12.550.163.01"
+  cuda_version: "12.4"
+  cuda_version_major: 12
+  cuda_version_minor: 4
+
+device_defaults:
+  name: "NVIDIA A100-SXM4-40GB"
+  brand: "nvidia"
+  architecture: "ampere"
+  compute_capability:
+    major: 8
+    minor: 0
+  memory:
+    total_bytes: 42949672960 # 40 GiB
+    reserved_bytes: 0
+    free_bytes: 42949672960
+    used_bytes: 0
+
+# Per-device overrides — these win over device_defaults for the matching index.
+devices:
+  - index: 0
+    uuid: "GPU-12345678-1234-1234-1234-123456780000"
+    pci:
+      bus_id: "0000:07:00.0"
+  - index: 1
+    uuid: "GPU-12345678-1234-1234-1234-123456780001"
+    pci:
+      bus_id: "0000:0F:00.0"
+
+nvlink:
+  version: 3          # A100 is NVLink 3 with 12 links (the upstream a100 profile)
+  links_per_gpu: 12

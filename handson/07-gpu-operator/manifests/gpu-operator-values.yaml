@@ -1,0 +1,58 @@
+# Overlay that stops the real GPU Operator at the parts that *consume* a driver
+# rather than install one, and points it at Mokka's staged tree. Installing the
+# operator with its defaults against a Mokka node fails: the driver DaemonSet
+# tries to build a kernel module that cannot exist.
+#
+# Use a values file, not --set: every operand takes its driver root through a
+# nested `env` list, and that shape does not survive the command line
+# (chained --set gfd.env[0].name=... flags drop silently, --set
+# validator.cuda.env[0].value="false" is typed as a bool against a string
+# field, and an unquoted env[0] is glob-expanded by zsh before Helm sees it).
+
+driver:
+  enabled: false
+toolkit:
+  enabled: false
+dcgm:
+  enabled: false
+mig:
+  strategy: none
+migManager:
+  enabled: false
+nodeStatusExporter:
+  enabled: false
+
+cdi:
+  enabled: true
+  default: true
+
+devicePlugin:
+  enabled: true
+  config:
+    name: ""
+
+gfd:
+  enabled: true
+  env:
+    - name: GFD_MACHINE_TYPE_FILE
+      value: "/etc/nvml-mock/machine-type"
+
+dcgmExporter:
+  enabled: true
+  env:
+    - name: DCGM_EXPORTER_COLLECT_INTERVAL
+      value: "5000"
+
+validator:
+  driver:
+    env:
+      - name: DISABLE_DEV_CHAR_SYMLINK_CREATION
+        value: "true"
+  toolkit:
+    env:
+      - name: NVIDIA_VISIBLE_DEVICES
+        value: "all"
+  cuda:
+    env:
+      - name: WITH_WORKLOAD
+        value: "false"

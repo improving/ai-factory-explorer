@@ -1,0 +1,5 @@
+# Minimal override to switch the running nvml-mock release to the A100 profile.
+# Use with: helm upgrade nvml-mock oci://ghcr.io/nvidia/k8s-test-infra/chart/nvml-mock --version "${MOKKA_VERSION:?see handson/README.md#pinned-versions}" \
+#   --namespace mokka -f values/a100.yaml   # from handson/01-profiles-and-config
+gpu:
+  profile: a100

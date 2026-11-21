@@ -1,0 +1,19 @@
+# Optional multi-node variant of the H00 cluster, for Drill 9 (targeting
+# the wrong node) below. `kind create cluster` with no config creates a single
+# node that is both control-plane and worker, which is fine for Modules
+# 00-01/03-04 but can't demonstrate a per-node override, since there's only
+# ever one nvml-mock pod to exec into.
+#
+# This gives you 1 control-plane + 2 workers, all running the Mokka node
+# image, so `helm install`s default `tolerations: [{operator: Exists}]` places
+# an nvml-mock pod on every one of the 3 nodes.
+# The node image is the pinned MOKKA_NODE_IMAGE from handson/README.md; change both together.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    image: ghcr.io/nvidia/mokka-kind-node:sha-f0dde50
+  - role: worker
+    image: ghcr.io/nvidia/mokka-kind-node:sha-f0dde50
+  - role: worker
+    image: ghcr.io/nvidia/mokka-kind-node:sha-f0dde50

@@ -1,0 +1,19 @@
+# IB02 topology: the smallest possible IB fabric.
+#
+#   Hca1 --- Switch1 --- Hca2
+#
+# File format (ibsim / ibnetdiscover-compatible):
+#   <node header: type ports "nodeid">
+#   <port lines: [localport] "remoteid"[remoteport]>
+#   blank line between node records
+# The first port of the first record is used as the default SM port.
+
+Switch	8 "Switch1"
+[1]	"Hca1"[1]
+[2]	"Hca2"[1]
+
+Hca	2 "Hca1"
+[1]	"Switch1"[1]
+
+Hca	2 "Hca2"
+[1]	"Switch1"[2]

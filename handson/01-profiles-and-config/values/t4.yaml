@@ -1,0 +1,4 @@
+# Minimal override to switch the running nvml-mock release to the T4 profile —
+# the smallest shipped profile (4 GiB devices), useful for fast CI-style jobs.
+gpu:
+  profile: t4

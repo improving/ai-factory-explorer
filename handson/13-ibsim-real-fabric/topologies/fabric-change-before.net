@@ -1,0 +1,26 @@
+# IB15's OPTIONAL alternate-method file: the "before" shape as a standalone topology, for the
+# restart-based version of IB15 (stop ibsim, load fabric-change-after.net fresh, compare). The lab's
+# primary, recommended method uses topologies/fabric-change.net instead, which lets you go from this
+# same "before" shape to the "after" shape live, via the console's Link command, without restarting.
+#
+#   Hca1
+#    |
+#    S1
+#    |
+#    S2
+#    |
+#   Hca2
+
+Switch	4 "S1"
+[1]	"Hca1"[1]
+[2]	"S2"[2]
+
+Switch	4 "S2"
+[1]	"Hca2"[1]
+[2]	"S1"[2]
+
+Hca	2 "Hca1"
+[1]	"S1"[1]
+
+Hca	2 "Hca2"
+[1]	"S2"[1]

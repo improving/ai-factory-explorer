@@ -1,0 +1,45 @@
+# IB15's primary file: same "before" shape as fabric-change-before.net, PLUS a switch (S3) that
+# already exists in the topology but starts with NO port connections at all -- i.e. present and
+# powered on, but not cabled in yet. ibsim's discovery (and OpenSM) will not see S3 until you connect
+# it live with the console's `Link` command -- this is what makes IB15's "hot" topology change
+# possible without restarting ibsim.
+#
+# Before any Link commands: identical, from a discovery point of view, to fabric-change-before.net.
+#   Hca1
+#    |
+#    S1
+#    |
+#    S2
+#    |
+#   Hca2
+#
+#   S3 exists but is invisible (no links) until you run, in the ibsim console:
+#     Link "S3"[1] "Hca1"[2]
+#     Link "S3"[2] "S2"[3]
+#
+# After those two commands, the fabric matches fabric-change-after.net's shape:
+#   Hca1
+#    | \
+#    |  \
+#    S1  S3
+#    |  /
+#    | /
+#    S2
+#    |
+#   Hca2
+
+Switch	4 "S1"
+[1]	"Hca1"[1]
+[2]	"S2"[2]
+
+Switch	4 "S3"
+
+Switch	4 "S2"
+[1]	"Hca2"[1]
+[2]	"S1"[2]
+
+Hca	2 "Hca1"
+[1]	"S1"[1]
+
+Hca	2 "Hca2"
+[1]	"S2"[1]

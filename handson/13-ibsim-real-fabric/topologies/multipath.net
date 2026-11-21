@@ -1,0 +1,40 @@
+# IB06 topology: a diamond -- two independent switch-to-switch paths between Hca1 and Hca2.
+#
+#              Switch1
+#             /       \
+#            /         \
+#        Switch2       Switch3
+#            \         /
+#             \       /
+#              Switch4
+#             /        \
+#          Hca1        Hca2
+#
+# Hca1 -> Switch1 -> {Switch2 or Switch3} -> Switch4 -> Hca2: two equal-hop-count paths exist.
+# OpenSM's routing engine picks ONE per source/destination LID pair (InfiniBand does not multipath a
+# single flow the way ECMP does in IP networks) -- IB06 has you find out, empirically, which one it
+# picked and why it isn't "load balancing" in the Ethernet/IP sense.
+
+Switch	8 "Switch1"
+[1]	"Hca1"[1]
+[2]	"Switch2"[1]
+[3]	"Switch3"[1]
+
+Switch	8 "Switch2"
+[1]	"Switch1"[2]
+[2]	"Switch4"[1]
+
+Switch	8 "Switch3"
+[1]	"Switch1"[3]
+[2]	"Switch4"[2]
+
+Switch	8 "Switch4"
+[1]	"Switch2"[2]
+[2]	"Switch3"[2]
+[3]	"Hca2"[1]
+
+Hca	2 "Hca1"
+[1]	"Switch1"[1]
+
+Hca	2 "Hca2"
+[1]	"Switch4"[3]

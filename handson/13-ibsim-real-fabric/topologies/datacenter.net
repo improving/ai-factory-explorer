@@ -1,0 +1,90 @@
+# IB16 topology: a small 2-tier Clos ("fat-tree-ish") fabric -- 2 spines, 4 leaves, 12 HCAs.
+#
+#                     Spine1              Spine2
+#                    /  |  |  \          /  |  |  \
+#                   /   |  |   \        /   |  |   \
+#                Leaf1 Leaf2 Leaf3 Leaf4   (each leaf uplinks to BOTH spines)
+#                 /|\   /|\   /|\   /|\
+#                H H H H H H H H H H H H
+#
+# Every leaf has two uplinks (one to each spine) and three host ports. This is small enough to read by
+# hand but shaped like a real 2-tier GPU-cluster fabric: any leaf-to-leaf path crosses exactly one
+# spine, and losing one spine (IB16's exercise) halves the cross-sectional bandwidth without
+# partitioning anything -- unlike topologies/two-switch.net, where losing the one inter-switch link
+# partitions the fabric outright.
+
+Switch	8 "Spine1"
+[1]	"Leaf1"[5]
+[2]	"Leaf2"[5]
+[3]	"Leaf3"[5]
+[4]	"Leaf4"[5]
+
+Switch	8 "Spine2"
+[1]	"Leaf1"[6]
+[2]	"Leaf2"[6]
+[3]	"Leaf3"[6]
+[4]	"Leaf4"[6]
+
+Switch	8 "Leaf1"
+[1]	"Hca01"[1]
+[2]	"Hca02"[1]
+[3]	"Hca03"[1]
+[5]	"Spine1"[1]
+[6]	"Spine2"[1]
+
+Switch	8 "Leaf2"
+[1]	"Hca04"[1]
+[2]	"Hca05"[1]
+[3]	"Hca06"[1]
+[5]	"Spine1"[2]
+[6]	"Spine2"[2]
+
+Switch	8 "Leaf3"
+[1]	"Hca07"[1]
+[2]	"Hca08"[1]
+[3]	"Hca09"[1]
+[5]	"Spine1"[3]
+[6]	"Spine2"[3]
+
+Switch	8 "Leaf4"
+[1]	"Hca10"[1]
+[2]	"Hca11"[1]
+[3]	"Hca12"[1]
+[5]	"Spine1"[4]
+[6]	"Spine2"[4]
+
+Hca	2 "Hca01"
+[1]	"Leaf1"[1]
+
+Hca	2 "Hca02"
+[1]	"Leaf1"[2]
+
+Hca	2 "Hca03"
+[1]	"Leaf1"[3]
+
+Hca	2 "Hca04"
+[1]	"Leaf2"[1]
+
+Hca	2 "Hca05"
+[1]	"Leaf2"[2]
+
+Hca	2 "Hca06"
+[1]	"Leaf2"[3]
+
+Hca	2 "Hca07"
+[1]	"Leaf3"[1]
+
+Hca	2 "Hca08"
+[1]	"Leaf3"[2]
+
+Hca	2 "Hca09"
+[1]	"Leaf3"[3]
+
+Hca	2 "Hca10"
+[1]	"Leaf4"[1]
+
+Hca	2 "Hca11"
+[1]	"Leaf4"[2]
+
+Hca	2 "Hca12"
+[1]	"Leaf4"[3]

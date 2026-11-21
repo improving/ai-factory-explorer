@@ -1,0 +1,35 @@
+# A standalone real dcgm-exporter/nv-hostengine pod pointed at Mokka's staged
+# driver root, WITHOUT the full GPU Operator stack (H07 covers that
+# path). This is the lightweight way to prove DCGM itself reads the mock —
+# verified working: `dcgmi discovery -l` finds all 4 mock GPUs, and
+# `dcgm-exporter`'s real /metrics endpoint serves live GPU_TEMP/POWER/UTIL.
+#
+# `sleep infinity` is deliberate: we start nv-hostengine and dcgm-exporter by hand
+# inside the running container (see README.md), rather than as the container's
+# entrypoint, so the same pod can be used interactively for both `dcgmi` and
+# the exporter.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dcgm-test
+  namespace: mokka
+spec:
+  restartPolicy: Never
+  containers:
+    - name: dcgm-exporter
+      image: nvcr.io/nvidia/k8s/dcgm-exporter:3.3.9-3.6.1-ubuntu22.04
+      command: ["sleep", "infinity"]
+      env:
+        - name: LD_LIBRARY_PATH
+          value: /var/lib/nvml-mock/driver/usr/lib64
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: all
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: mock-root
+          mountPath: /var/lib/nvml-mock
+  volumes:
+    - name: mock-root
+      hostPath:
+        path: /var/lib/nvml-mock
