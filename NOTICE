@@ -1,0 +1,30 @@
+AI Factory Explorer
+Copyright 2026 Improving
+
+This product includes software developed at Improving (https://improving.com/).
+
+The application is distributed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party software
+--------------------
+
+The runtime dependencies are MIT-licensed and keep their own copyright notices:
+
+- React and React DOM — Copyright Meta Platforms, Inc. and affiliates
+- Cytoscape.js — Copyright The Cytoscape Consortium
+- marked — Copyright Christopher Jeffrey
+- Zustand — Copyright Paul Henschel
+
+The build and test tooling (Vite, Vitest, Playwright, TypeScript, and the Vite plugins)
+is MIT- or Apache-2.0-licensed and is not distributed in the built artifact.
+
+Content and data
+----------------
+
+The reference-architecture values in the application are derived from public vendor
+documentation (NVIDIA DGX SuperPOD and Enterprise Reference Architectures, NVIDIA data
+sheets, and vendor manuals). Each value in the inspector names its source, and a value
+that no public source confirms is marked "assumed" with the reason.
+
+The operator documents in runbooks/, handbook/, and handson/ are original material of
+this project. They cite public vendor documentation; the cited pages keep their own terms.

@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: AI Factory Explorer
+abstract: An interactive view of AI factory topology, from the internet edge to one GPU. It draws the compute fabric, the scalable units, the racks, the servers, and the paths between them, and it marks every value as confirmed, derived, or assumed.
+type: software
+authors:
+  - name: Improving
+    website: https://improving.com/
+repository-code: https://github.com/improving/ai-factory-explorer
+url: https://github.com/improving/ai-factory-explorer
+license: Apache-2.0
+version: 0.1.0
+date-released: 2026-11-21
+keywords:
+  - ai-factory
+  - gpu
+  - nvidia
+  - dgx
+  - nvl72
+  - infiniband
+  - roce
+  - topology
+  - sre
+  - visualization
