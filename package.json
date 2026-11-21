@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "cytoscape": "3.35.0",
-    "marked": "18.2.1",
+    "marked": "18.2.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "zustand": "5.1.0"
