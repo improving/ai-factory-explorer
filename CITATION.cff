@@ -4,6 +4,10 @@ title: AI Factory Explorer
 abstract: An interactive view of AI factory topology, from the internet edge to one GPU. It draws the compute fabric, the scalable units, the racks, the servers, and the paths between them, and it marks every value as confirmed, derived, or assumed.
 type: software
 authors:
+  - family-names: Sudake
+    given-names: Sanket
+    email: Sanket.Sudake@improving.com
+    affiliation: Improving
   - name: Improving
     website: https://improving.com/
 repository-code: https://github.com/improving/ai-factory-explorer
